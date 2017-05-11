@@ -1,0 +1,16 @@
+language: java
+install: true
+matrix:
+  include:
+  - jdk: oraclejdk8
+script:
+- javac -d . src/*.java
+- jar cfe cg-c4l.jar Referee *.class
+deploy:
+  provider: releases
+  api_key:
+    secure: amkpk95UJIg63ssBCDErObRL0wh+ajZQ1T6yH/WW2NMm1ECM0XBPZalLcCASxAV37Oge7d/KdxlY3290n4G/7AI9Op0jV3fvH7dcZDkdqqEi0hTARAFnw/e3cx5IXnOP9wJyJkKjFbmQnGjLu/5JxO3cCZyOpG7/7fQanTZjQ64NoSBTloaw4+v264wBppoT3MLtZpUUe66VieFw35NBj8IL699t27Xf++kF20orwYYjce9qkDZBqM+BlF1PIFfyxSkk+1QIeEN7Pw+ARWzpuIdzXB/1//yxYEGL6ZjSBUaVlyMzu6Ua6WWNmqlc5DiWUgq93TUBit4g7TW8A7vy2CHdGTS4snJYpKJFQSBbP4pAAsA6rT7lZgk/Ko6HTI7a+tYY0VLJxPqpJ/HMSIfBGwoJkGM5KG2QO1y6bOTNhaOa2US4EwPCBcjuitf7bx5Esazm8XSLvd1aI7ngraYwJJxk0rh3M/pPRvcFB5OIftnVEwp2d4AN1zFT+KZPmnFKoTx2Nq0FIwuklPlws6hG5xvpKP6CgggbgqkLLu2KhrnA8w0XFjFagfmnKFJIrfMs3iEJZPeflUwaII7qJ5DCz5k2J7Ux1bTm8AV2FK6WpV7oF9EAPmtU43WOUDPdY+fcCq+rFXSHiO5TVWfDenPhb8Ukcf0vEGJnxWzVg2mrS88=
+  file: cg-c4l.jar
+  skip_cleanup: true
+  on:
+    tags: true
