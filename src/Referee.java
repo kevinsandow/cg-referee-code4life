@@ -463,11 +463,12 @@ class Referee extends MultiReferee {
         samplePool.get(1).add(new Sample(new int[]{0, 6, 0, 0, 0}, 30, MoleculeType.B));
         samplePool.get(1).add(new Sample(new int[]{0, 2, 2, 3, 0}, 10, MoleculeType.B));
         samplePool.get(1).add(new Sample(new int[]{2, 0, 0, 1, 4}, 20, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[]{0, 2, 3, 0, 3}, 20, MoleculeType.B));
         samplePool.get(1).add(new Sample(new int[]{5, 3, 0, 0, 0}, 20, MoleculeType.B));
         samplePool.get(1).add(new Sample(new int[]{0, 0, 5, 0, 0}, 20, MoleculeType.C));
         samplePool.get(1).add(new Sample(new int[]{0, 0, 6, 0, 0}, 30, MoleculeType.C));
         samplePool.get(1).add(new Sample(new int[]{2, 3, 0, 0, 2}, 10, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{3, 0, 2, 2, 0}, 10, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[]{3, 0, 2, 3, 0}, 10, MoleculeType.C));
         samplePool.get(1).add(new Sample(new int[]{4, 2, 0, 0, 1}, 20, MoleculeType.C));
         samplePool.get(1).add(new Sample(new int[]{0, 5, 3, 0, 0}, 20, MoleculeType.C));
         samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 0, 5}, 20, MoleculeType.D));
@@ -609,7 +610,7 @@ class Referee extends MultiReferee {
         });
 
         for (Sample sample : storedSamples) {
-            sampleLines.add(join(sample.id, -1, sample.rank, sample.getGainChar(), sample.life, resourceArrayToString(sample.cost)));
+            sampleLines.add(join(sample.id, -1, sample.rank + 1, sample.getGainChar(), sample.life, resourceArrayToString(sample.cost)));
         }
 
         lines.add(Arrays.stream(MoleculeType.values()).map(type -> String.valueOf(Math.max(0, molecules.get(type)))).collect(Collectors.joining(" ")));
@@ -899,8 +900,8 @@ class Referee extends MultiReferee {
         p.put("connectToNothing", "Invalid CONNECT: you must go to a module before using the connect command");
         p.put("InvalidConnect", "Invalid CONNECT");
         p.put("ProjectTooltip", "$0 completes a science project!");
-        p.put("production", "$%d researched medecine for sample %d, scored %d health points and gained expertise in molecule %s");
-        p.put("productionNoGain", "$%d researched medecine for sample %d, scored %d health points");
+        p.put("production", "$%d researched medicine for sample %d, scored %d health points and gained expertise in molecule %s");
+        p.put("productionNoGain", "$%d researched medicine for sample %d, scored %d health points");
         p.put("upload", "$%d stores sample %d on the cloud.");
         p.put("newSample", "$%d receives sample %d.");
         p.put("download", "$%d downloads sample %d from the cloud.");
@@ -1322,7 +1323,6 @@ abstract class AbstractReferee {
             this.player = player;
             this.message = message;
         }
-
     }
 
     private Set<Tooltip> tooltips;
