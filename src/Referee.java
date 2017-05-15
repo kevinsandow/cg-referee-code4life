@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 class Referee extends MultiReferee {
 
-    public static int LEAGUE_LEVEL = 0; // 0, 1 or 2. 3 is for silver+.
+    public static int LEAGUE_LEVEL = 3; // 0, 1 or 2. 3 is for silver+.
 
     public static final int EV_NEW_SAMPLE = 0;
     public static final int EV_TAKE_SAMPLE = 1;
