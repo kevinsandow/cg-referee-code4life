@@ -1360,56 +1360,77 @@ abstract class AbstractReferee {
         try {
             // Read ###Start 2
             s.nextLine();
+            playerCount = alivePlayerCount = 2;
+            players = new PlayerStatus[2];
+            players[0] = new PlayerStatus(0);
+            players[1] = new PlayerStatus(1);
+            playerStatus = players[0];
+            currentPlayer = nextPlayer = 1;
+            round = -1;
+            newRound = true;
 
-            round = 0;
-            boolean endReached = false;
-            while (round < getMaxRoundCount(2) && !endReached) {
-                prepare(round);
+            while (true) {
+                lastPlayer = playerStatus;
+                playerStatus = nextPlayer();
 
-                for (int player = 0; player < 2; player++) {
+                if (this.round >= getMaxRoundCount(this.playerCount)) {
+                    throw new GameOverException("maxRoundsCountReached");
+                }
 
-                    out.println("###Input " + player);
-                    if (round == 0) {
-                        for (String line : getInitInputForPlayer(player)) {
-                            out.println(line);
+                if (newRound) {
+                    prepare(round);
+                    if (!this.isTurnBasedGame()) {
+                        for (PlayerStatus player : this.players) {
+                            if (!player.lost) {
+                                player.nextInput = getInputForPlayer(round, player.id);
+                            } else {
+                                player.nextInput = null;
+                            }
                         }
                     }
-                    for (String line : getInputForPlayer(round, player)) {
+                }
+
+                out.println("###Input " + nextPlayer);
+                if (this.round == 0) {
+                    for (String line : getInitInputForPlayer(nextPlayer)) {
                         out.println(line);
                     }
-
-                    int expectedOutputLineCount = getExpectedOutputLineCountForPlayer(player);
-                    out.println("###Output " + player + " " + expectedOutputLineCount);
-                    try {
-                        String[] outputs = new String[expectedOutputLineCount];
-                        for (int i = 0; i < expectedOutputLineCount; i++) {
-                            outputs[i] = s.nextLine();
-                        }
-                        handlePlayerOutput(0, round, player, outputs);
-                    } catch (WinException e) {
-                        players[0].win = true;
-                        endReached = true;
-                    } catch (LostException e) {
-                        err.println("###Error " + player + " Lost " + e.getMessage());
-                        players[0].lost = true;
-                        endReached = true;
-                    } catch (InvalidInputException e) {
-                        err.println("###Error " + player + " InvalidInput " + e.getMessage());
-                        players[0].lost = true;
-                        endReached = true;
-                    }
+                }
+                for (String line : this.players[nextPlayer].nextInput) {
+                    out.println(line);
                 }
 
+                int expectedOutputLineCount = getExpectedOutputLineCountForPlayer(nextPlayer);
+                out.println("###Output " + nextPlayer + " " + expectedOutputLineCount);
                 try {
-                    updateGame(round++);
-                } catch (GameOverException e) {
-                    endReached = true;
+                    String[] outputs = new String[expectedOutputLineCount];
+                    for (int i = 0; i < expectedOutputLineCount; i++) {
+                        outputs[i] = s.nextLine();
+                    }
+                    handlePlayerOutput(0, round, nextPlayer, outputs);
+                } catch (WinException e) {
+                    playerStatus.score = getScore(nextPlayer);
+                    playerStatus.win = true;
+                    playerStatus.info = e.getReason();
+                    playerStatus.reasonCode = e.getReasonCode();
+                    lastPlayer = playerStatus;
+                    throw new GameOverException(null);
+                } catch (LostException | InvalidInputException e) {
+                    playerStatus.score = getScore(nextPlayer);
+                    playerStatus.lost = true;
+                    playerStatus.info = e.getReason();
                 }
             }
-
-            if (getScore(0) > getScore(1)) {
+        } catch (GameOverException e) {
+            newRound = true;
+            reasonCode = e.getReasonCode();
+            reason = e.getReason();
+            err.println(reason);
+            prepare(round);
+            updateScores();
+            if (players[0].score > players[1].score) {
                 out.println("###End 0 1");
-            } else if (getScore(1) < getScore(0)) {
+            } else if (players[0].score < players[1].score) {
                 out.println("###End 1 0");
             } else {
                 out.println("###End 01");
