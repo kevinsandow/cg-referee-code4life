@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 class Referee extends MultiReferee {
 
-    public static int LEAGUE_LEVEL = 2; // 0, 1 or 2
+    public static int LEAGUE_LEVEL = 0; // 0, 1 or 2. 3 is for silver+.
 
     public static final int EV_NEW_SAMPLE = 0;
     public static final int EV_TAKE_SAMPLE = 1;
@@ -36,13 +36,13 @@ class Referee extends MultiReferee {
     public static final int EV_DIAGNOSE = 4;
     public static final int EV_PRODUCE = 5;
     public static final int EV_CLONE_INITAL_SAMPLE = 6;
-    public static final int[] RESOURCE_PER_TYPE_BY_LEAGUE_LEVEL = {99, 99, 6};
-    public static final int[] SCIENCE_PROJECTS_BY_LEAGUE_LEVEL = {0, 0, 3};
-    public static final int[] INIT_DIAGNOSED_SAMPLES_BY_LEAGUE_LEVEL = {50, 0, 0};
+    public static final int[] RESOURCE_PER_TYPE_BY_LEAGUE_LEVEL = { 99, 99, 6, 5};
+    public static final int[] SCIENCE_PROJECTS_BY_LEAGUE_LEVEL = { 0, 0, 3, 3};
+    public static final int[] INIT_DIAGNOSED_SAMPLES_BY_LEAGUE_LEVEL = { 50, 0, 0, 0};
     public static final int MAX_STORAGE = 10;
     public static final int MAX_TRAY = 3;
     public static final int SAMPLE_RANK_COUNT = 3;
-    public static final int SCIENCE_PROJECT_VALUE = 30;
+    public static final int SCIENCE_PROJECT_VALUE = LEAGUE_LEVEL < 3 ? 30 : 50;
     public static final int MAX_SCORE = 170;
 
     enum MoleculeType {
@@ -327,7 +327,7 @@ class Referee extends MultiReferee {
     static final Pattern PLAYER_MOVE_PATTERN = Pattern.compile("^GOTO\\s+(?<module>LABORATORY|DIAGNOSIS|MOLECULES|SAMPLES)(?:\\s+)?(?:\\s+(?<message>.+))?", Pattern.CASE_INSENSITIVE);
     static final Pattern PLAYER_WAIT_PATTERN = Pattern.compile("^WAIT(?:\\s+)?(?:\\s+(?<message>.+))?", Pattern.CASE_INSENSITIVE);
     static final Pattern PLAYER_USE_PATTERN = Pattern.compile("^CONNECT(?:\\s+(?<data>[ABCDE]|(?:-?\\d+)))?(?:\\s+)?(?:\\s+(?<message>.+))?$", Pattern.CASE_INSENSITIVE);
-    static final String[] EXPECTED_BY_LEAGUE_LEVEL = {"GOTO LABORATORY|DIAGNOSIS|MOLECULES | CONNECT data", "GOTO LABORATORY|DIAGNOSIS|MOLECULES|SAMPLES | CONNECT data", "GOTO LABORATORY|DIAGNOSIS|MOLECULES|SAMPLES | CONNECT data"};
+    static final String[] EXPECTED_BY_LEAGUE_LEVEL = { "GOTO LABORATORY|DIAGNOSIS|MOLECULES | CONNECT data", "GOTO LABORATORY|DIAGNOSIS|MOLECULES|SAMPLES | CONNECT data", "GOTO LABORATORY|DIAGNOSIS|MOLECULES|SAMPLES | CONNECT data" };
 
     private List<PlayerData> players;
     private List<Transfer> transfers;
@@ -387,16 +387,16 @@ class Referee extends MultiReferee {
     private void initScienceProjects() {
         LinkedList<ScienceProject> scienceProjectPool;
         scienceProjectPool = new LinkedList<>();
-        scienceProjectPool.add(new ScienceProject(new int[]{3, 3, 0, 0, 3}));
-        scienceProjectPool.add(new ScienceProject(new int[]{0, 3, 3, 3, 0}));
-        scienceProjectPool.add(new ScienceProject(new int[]{3, 0, 0, 3, 3}));
-        scienceProjectPool.add(new ScienceProject(new int[]{0, 0, 4, 4, 0}));
-        scienceProjectPool.add(new ScienceProject(new int[]{0, 4, 4, 0, 0}));
-        scienceProjectPool.add(new ScienceProject(new int[]{0, 0, 0, 4, 4}));
-        scienceProjectPool.add(new ScienceProject(new int[]{4, 0, 0, 0, 4}));
-        scienceProjectPool.add(new ScienceProject(new int[]{3, 3, 3, 0, 0}));
-        scienceProjectPool.add(new ScienceProject(new int[]{0, 0, 3, 3, 3}));
-        scienceProjectPool.add(new ScienceProject(new int[]{4, 4, 0, 0, 0}));
+        scienceProjectPool.add(new ScienceProject(new int[] { 3, 3, 0, 0, 3 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 0, 3, 3, 3, 0 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 3, 0, 0, 3, 3 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 0, 0, 4, 4, 0 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 0, 4, 4, 0, 0 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 0, 0, 0, 4, 4 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 4, 0, 0, 0, 4 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 3, 3, 3, 0, 0 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 0, 0, 3, 3, 3 }));
+        scienceProjectPool.add(new ScienceProject(new int[] { 4, 4, 0, 0, 0 }));
         Collections.shuffle(scienceProjectPool, random);
 
         scienceProjects = new ArrayList<>(SCIENCE_PROJECTS_BY_LEAGUE_LEVEL[LEAGUE_LEVEL]);
@@ -413,96 +413,96 @@ class Referee extends MultiReferee {
             LinkedList<Sample> cells = new LinkedList<Sample>();
             samplePool.add(cells);
         }
-        samplePool.get(0).add(new Sample(new int[]{0, 3, 0, 0, 0}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 0, 2, 1}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{0, 1, 1, 1, 1}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{0, 2, 0, 0, 2}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 4, 0, 0}, 10, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{0, 1, 2, 1, 1}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{0, 2, 2, 0, 1}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{3, 1, 0, 0, 1}, 01, MoleculeType.A));
-        samplePool.get(0).add(new Sample(new int[]{1, 0, 0, 0, 2}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 0, 0, 3}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{1, 0, 1, 1, 1}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 2, 0, 2}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 0, 4, 0}, 10, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{1, 0, 1, 2, 1}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{1, 0, 2, 2, 0}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{0, 1, 3, 1, 0}, 01, MoleculeType.B));
-        samplePool.get(0).add(new Sample(new int[]{2, 1, 0, 0, 0}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 0, 3, 0}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{1, 1, 0, 1, 1}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{0, 2, 0, 2, 0}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 0, 0, 4}, 10, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{1, 1, 0, 1, 2}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{0, 1, 0, 2, 2}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{1, 3, 1, 0, 0}, 01, MoleculeType.C));
-        samplePool.get(0).add(new Sample(new int[]{0, 2, 1, 0, 0}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{3, 0, 0, 0, 0}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{1, 1, 1, 0, 1}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{2, 0, 0, 2, 0}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{4, 0, 0, 0, 0}, 10, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{2, 1, 1, 0, 1}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{2, 0, 1, 0, 2}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{1, 0, 0, 1, 3}, 01, MoleculeType.D));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 2, 1, 0}, 01, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 3, 0, 0}, 01, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{1, 1, 1, 1, 0}, 01, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{2, 0, 2, 0, 0}, 01, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{0, 4, 0, 0, 0}, 10, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{1, 2, 1, 1, 0}, 01, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{2, 2, 0, 1, 0}, 01, MoleculeType.E));
-        samplePool.get(0).add(new Sample(new int[]{0, 0, 1, 3, 1}, 01, MoleculeType.E));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 5, 0}, 20, MoleculeType.A));
-        samplePool.get(1).add(new Sample(new int[]{6, 0, 0, 0, 0}, 30, MoleculeType.A));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 3, 2, 2}, 10, MoleculeType.A));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 1, 4, 2}, 20, MoleculeType.A));
-        samplePool.get(1).add(new Sample(new int[]{2, 3, 0, 3, 0}, 10, MoleculeType.A));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 5, 3}, 20, MoleculeType.A));
-        samplePool.get(1).add(new Sample(new int[]{0, 5, 0, 0, 0}, 20, MoleculeType.B));
-        samplePool.get(1).add(new Sample(new int[]{0, 6, 0, 0, 0}, 30, MoleculeType.B));
-        samplePool.get(1).add(new Sample(new int[]{0, 2, 2, 3, 0}, 10, MoleculeType.B));
-        samplePool.get(1).add(new Sample(new int[]{2, 0, 0, 1, 4}, 20, MoleculeType.B));
-        samplePool.get(1).add(new Sample(new int[]{0, 2, 3, 0, 3}, 20, MoleculeType.B));
-        samplePool.get(1).add(new Sample(new int[]{5, 3, 0, 0, 0}, 20, MoleculeType.B));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 5, 0, 0}, 20, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 6, 0, 0}, 30, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{2, 3, 0, 0, 2}, 10, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{3, 0, 2, 3, 0}, 10, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{4, 2, 0, 0, 1}, 20, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{0, 5, 3, 0, 0}, 20, MoleculeType.C));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 0, 5}, 20, MoleculeType.D));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 6, 0}, 30, MoleculeType.D));
-        samplePool.get(1).add(new Sample(new int[]{2, 0, 0, 2, 3}, 10, MoleculeType.D));
-        samplePool.get(1).add(new Sample(new int[]{1, 4, 2, 0, 0}, 20, MoleculeType.D));
-        samplePool.get(1).add(new Sample(new int[]{0, 3, 0, 2, 3}, 10, MoleculeType.D));
-        samplePool.get(1).add(new Sample(new int[]{3, 0, 0, 0, 5}, 20, MoleculeType.D));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 0, 5}, 20, MoleculeType.E));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 0, 0, 6}, 30, MoleculeType.E));
-        samplePool.get(1).add(new Sample(new int[]{3, 2, 2, 0, 0}, 10, MoleculeType.E));
-        samplePool.get(1).add(new Sample(new int[]{0, 1, 4, 2, 0}, 20, MoleculeType.E));
-        samplePool.get(1).add(new Sample(new int[]{3, 0, 3, 0, 2}, 10, MoleculeType.E));
-        samplePool.get(1).add(new Sample(new int[]{0, 0, 5, 3, 0}, 20, MoleculeType.E));
-        samplePool.get(2).add(new Sample(new int[]{0, 0, 0, 0, 7}, 40, MoleculeType.A));
-        samplePool.get(2).add(new Sample(new int[]{3, 0, 0, 0, 7}, 50, MoleculeType.A));
-        samplePool.get(2).add(new Sample(new int[]{3, 0, 0, 3, 6}, 40, MoleculeType.A));
-        samplePool.get(2).add(new Sample(new int[]{0, 3, 3, 5, 3}, 30, MoleculeType.A));
-        samplePool.get(2).add(new Sample(new int[]{7, 0, 0, 0, 0}, 40, MoleculeType.B));
-        samplePool.get(2).add(new Sample(new int[]{7, 3, 0, 0, 0}, 50, MoleculeType.B));
-        samplePool.get(2).add(new Sample(new int[]{6, 3, 0, 0, 3}, 40, MoleculeType.B));
-        samplePool.get(2).add(new Sample(new int[]{3, 0, 3, 3, 5}, 30, MoleculeType.B));
-        samplePool.get(2).add(new Sample(new int[]{0, 7, 0, 0, 0}, 40, MoleculeType.C));
-        samplePool.get(2).add(new Sample(new int[]{0, 7, 3, 0, 0}, 50, MoleculeType.C));
-        samplePool.get(2).add(new Sample(new int[]{3, 6, 3, 0, 0}, 40, MoleculeType.C));
-        samplePool.get(2).add(new Sample(new int[]{5, 3, 0, 3, 3}, 30, MoleculeType.C));
-        samplePool.get(2).add(new Sample(new int[]{0, 0, 7, 0, 0}, 40, MoleculeType.D));
-        samplePool.get(2).add(new Sample(new int[]{0, 0, 7, 3, 0}, 50, MoleculeType.D));
-        samplePool.get(2).add(new Sample(new int[]{0, 3, 6, 3, 0}, 40, MoleculeType.D));
-        samplePool.get(2).add(new Sample(new int[]{3, 5, 3, 0, 3}, 30, MoleculeType.D));
-        samplePool.get(2).add(new Sample(new int[]{0, 0, 0, 7, 0}, 40, MoleculeType.E));
-        samplePool.get(2).add(new Sample(new int[]{0, 0, 0, 7, 3}, 50, MoleculeType.E));
-        samplePool.get(2).add(new Sample(new int[]{0, 0, 3, 6, 3}, 40, MoleculeType.E));
-        samplePool.get(2).add(new Sample(new int[]{3, 3, 5, 3, 0}, 30, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 0, 3, 0, 0, 0 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 0, 2, 1 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 0, 1, 1, 1, 1 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 0, 2, 0, 0, 2 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 4, 0, 0 }, 10, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 0, 1, 2, 1, 1 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 0, 2, 2, 0, 1 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 3, 1, 0, 0, 1 }, 01, MoleculeType.A));
+        samplePool.get(0).add(new Sample(new int[] { 1, 0, 0, 0, 2 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 0, 0, 3 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 1, 0, 1, 1, 1 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 2, 0, 2 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 0, 4, 0 }, 10, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 1, 0, 1, 2, 1 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 1, 0, 2, 2, 0 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 0, 1, 3, 1, 0 }, 01, MoleculeType.B));
+        samplePool.get(0).add(new Sample(new int[] { 2, 1, 0, 0, 0 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 0, 3, 0 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 1, 1, 0, 1, 1 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 0, 2, 0, 2, 0 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 0, 0, 4 }, 10, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 1, 1, 0, 1, 2 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 0, 1, 0, 2, 2 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 1, 3, 1, 0, 0 }, 01, MoleculeType.C));
+        samplePool.get(0).add(new Sample(new int[] { 0, 2, 1, 0, 0 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 3, 0, 0, 0, 0 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 1, 1, 1, 0, 1 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 2, 0, 0, 2, 0 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 4, 0, 0, 0, 0 }, 10, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 2, 1, 1, 0, 1 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 2, 0, 1, 0, 2 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 1, 0, 0, 1, 3 }, 01, MoleculeType.D));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 2, 1, 0 }, 01, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 3, 0, 0 }, 01, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 1, 1, 1, 1, 0 }, 01, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 2, 0, 2, 0, 0 }, 01, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 0, 4, 0, 0, 0 }, 10, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 1, 2, 1, 1, 0 }, 01, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 2, 2, 0, 1, 0 }, 01, MoleculeType.E));
+        samplePool.get(0).add(new Sample(new int[] { 0, 0, 1, 3, 1 }, 01, MoleculeType.E));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 0, 5, 0 }, 20, MoleculeType.A));
+        samplePool.get(1).add(new Sample(new int[] { 6, 0, 0, 0, 0 }, 30, MoleculeType.A));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 3, 2, 2 }, 10, MoleculeType.A));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 1, 4, 2 }, 20, MoleculeType.A));
+        samplePool.get(1).add(new Sample(new int[] { 2, 3, 0, 3, 0 }, 10, MoleculeType.A));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 0, 5, 3 }, 20, MoleculeType.A));
+        samplePool.get(1).add(new Sample(new int[] { 0, 5, 0, 0, 0 }, 20, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[] { 0, 6, 0, 0, 0 }, 30, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[] { 0, 2, 2, 3, 0 }, 10, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[] { 2, 0, 0, 1, 4 }, 20, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[] { 0, 2, 3, 0, 3 }, 20, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[] { 5, 3, 0, 0, 0 }, 20, MoleculeType.B));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 5, 0, 0 }, 20, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 6, 0, 0 }, 30, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[] { 2, 3, 0, 0, 2 }, 10, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[] { 3, 0, 2, 3, 0 }, 10, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[] { 4, 2, 0, 0, 1 }, 20, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[] { 0, 5, 3, 0, 0 }, 20, MoleculeType.C));
+        samplePool.get(1).add(new Sample(new int[] { 5, 0, 0, 0, 0 }, 20, MoleculeType.D));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 0, 6, 0 }, 30, MoleculeType.D));
+        samplePool.get(1).add(new Sample(new int[] { 2, 0, 0, 2, 3 }, 10, MoleculeType.D));
+        samplePool.get(1).add(new Sample(new int[] { 1, 4, 2, 0, 0 }, 20, MoleculeType.D));
+        samplePool.get(1).add(new Sample(new int[] { 0, 3, 0, 2, 3 }, 10, MoleculeType.D));
+        samplePool.get(1).add(new Sample(new int[] { 3, 0, 0, 0, 5 }, 20, MoleculeType.D));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 0, 0, 5 }, 20, MoleculeType.E));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 0, 0, 6 }, 30, MoleculeType.E));
+        samplePool.get(1).add(new Sample(new int[] { 3, 2, 2, 0, 0 }, 10, MoleculeType.E));
+        samplePool.get(1).add(new Sample(new int[] { 0, 1, 4, 2, 0 }, 20, MoleculeType.E));
+        samplePool.get(1).add(new Sample(new int[] { 3, 0, 3, 0, 2 }, 10, MoleculeType.E));
+        samplePool.get(1).add(new Sample(new int[] { 0, 0, 5, 3, 0 }, 20, MoleculeType.E));
+        samplePool.get(2).add(new Sample(new int[] { 0, 0, 0, 0, 7 }, 40, MoleculeType.A));
+        samplePool.get(2).add(new Sample(new int[] { 3, 0, 0, 0, 7 }, 50, MoleculeType.A));
+        samplePool.get(2).add(new Sample(new int[] { 3, 0, 0, 3, 6 }, 40, MoleculeType.A));
+        samplePool.get(2).add(new Sample(new int[] { 0, 3, 3, 5, 3 }, 30, MoleculeType.A));
+        samplePool.get(2).add(new Sample(new int[] { 7, 0, 0, 0, 0 }, 40, MoleculeType.B));
+        samplePool.get(2).add(new Sample(new int[] { 7, 3, 0, 0, 0 }, 50, MoleculeType.B));
+        samplePool.get(2).add(new Sample(new int[] { 6, 3, 0, 0, 3 }, 40, MoleculeType.B));
+        samplePool.get(2).add(new Sample(new int[] { 3, 0, 3, 3, 5 }, 30, MoleculeType.B));
+        samplePool.get(2).add(new Sample(new int[] { 0, 7, 0, 0, 0 }, 40, MoleculeType.C));
+        samplePool.get(2).add(new Sample(new int[] { 0, 7, 3, 0, 0 }, 50, MoleculeType.C));
+        samplePool.get(2).add(new Sample(new int[] { 3, 6, 3, 0, 0 }, 40, MoleculeType.C));
+        samplePool.get(2).add(new Sample(new int[] { 5, 3, 0, 3, 3 }, 30, MoleculeType.C));
+        samplePool.get(2).add(new Sample(new int[] { 0, 0, 7, 0, 0 }, 40, MoleculeType.D));
+        samplePool.get(2).add(new Sample(new int[] { 0, 0, 7, 3, 0 }, 50, MoleculeType.D));
+        samplePool.get(2).add(new Sample(new int[] { 0, 3, 6, 3, 0 }, 40, MoleculeType.D));
+        samplePool.get(2).add(new Sample(new int[] { 3, 5, 3, 0, 3 }, 30, MoleculeType.D));
+        samplePool.get(2).add(new Sample(new int[] { 0, 0, 0, 7, 0 }, 40, MoleculeType.E));
+        samplePool.get(2).add(new Sample(new int[] { 0, 0, 0, 7, 3 }, 50, MoleculeType.E));
+        samplePool.get(2).add(new Sample(new int[] { 0, 0, 3, 6, 3 }, 40, MoleculeType.E));
+        samplePool.get(2).add(new Sample(new int[] { 3, 3, 5, 3, 0 }, 30, MoleculeType.E));
 
         for (int rank = 0; rank < SAMPLE_RANK_COUNT; ++rank) {
             Collections.shuffle(samplePool.get(rank), random);
@@ -1108,7 +1108,11 @@ class Referee extends MultiReferee {
 
     @Override
     protected boolean gameOver() {
-        return super.gameOver() || players.stream().anyMatch(p -> p.score >= MAX_SCORE);
+        if (LEAGUE_LEVEL >= 3) {
+            return super.gameOver();
+        } else {
+            return super.gameOver() || players.stream().anyMatch(p -> p.score >= MAX_SCORE);
+        }
     }
 
     public static void main(String... args) throws IOException {
