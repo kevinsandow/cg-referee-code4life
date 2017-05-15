@@ -1366,78 +1366,50 @@ abstract class AbstractReferee {
             while (round < getMaxRoundCount(2) && !endReached) {
                 prepare(round);
 
-                out.println("###Input 0");
-                if (round == 0) {
-                    for (String line : getInitInputForPlayer(0)) {
+                for (int player = 0; player < 2; player++) {
+
+                    out.println("###Input " + player);
+                    if (round == 0) {
+                        for (String line : getInitInputForPlayer(player)) {
+                            out.println(line);
+                        }
+                    }
+                    for (String line : getInputForPlayer(round, player)) {
                         out.println(line);
                     }
-                }
-                for (String line : getInputForPlayer(round, 0)) {
-                    out.println(line);
-                }
 
-                int expectedOutputLineCount = getExpectedOutputLineCountForPlayer(0);
-                out.println("###Output 0 " + expectedOutputLineCount);
-                try {
-                    String[] outputs = new String[expectedOutputLineCount];
-                    for (int i = 0; i < expectedOutputLineCount; i++) {
-                        outputs[i] = s.nextLine();
+                    int expectedOutputLineCount = getExpectedOutputLineCountForPlayer(player);
+                    out.println("###Output " + player + " " + expectedOutputLineCount);
+                    try {
+                        String[] outputs = new String[expectedOutputLineCount];
+                        for (int i = 0; i < expectedOutputLineCount; i++) {
+                            outputs[i] = s.nextLine();
+                        }
+                        handlePlayerOutput(0, round, player, outputs);
+                    } catch (WinException e) {
+                        players[0].win = true;
+                        endReached = true;
+                    } catch (LostException e) {
+                        err.println("###Error " + player + " Lost " + e.getMessage());
+                        players[0].lost = true;
+                        endReached = true;
+                    } catch (InvalidInputException e) {
+                        err.println("###Error " + player + " InvalidInput " + e.getMessage());
+                        players[0].lost = true;
+                        endReached = true;
                     }
-                    handlePlayerOutput(0, round, 0, outputs);
-                } catch (WinException e) {
-                    players[0].win = true;
-                    endReached = true;
-                } catch (LostException e) {
-                    err.println("###Error 0 Lost " + e.getMessage());
-                    players[0].lost = true;
-                    endReached = true;
-                } catch (InvalidInputException e) {
-                    err.println("###Error 0 InvalidInput " + e.getMessage());
-                    players[0].lost = true;
-                    endReached = true;
-                }
-
-                out.println("###Input 1");
-                if (round == 0) {
-                    for (String line : getInitInputForPlayer(1)) {
-                        out.println(line);
-                    }
-                }
-                for (String line : getInputForPlayer(round, 1)) {
-                    out.println(line);
-                }
-
-                expectedOutputLineCount = getExpectedOutputLineCountForPlayer(1);
-                out.println("###Output 1 " + expectedOutputLineCount);
-                try {
-                    String[] outputs = new String[expectedOutputLineCount];
-                    for (int i = 0; i < expectedOutputLineCount; i++) {
-                        outputs[i] = s.nextLine();
-                    }
-                    handlePlayerOutput(0, round, 1, outputs);
-                } catch (WinException e) {
-                    players[1].win = true;
-                    endReached = true;
-                } catch (LostException e) {
-                    err.println("###Error 1 Lost " + e.getMessage());
-                    players[1].lost = true;
-                    endReached = true;
-                } catch (InvalidInputException e) {
-                    err.println("###Error 1 InvalidInput " + e.getMessage());
-                    players[1].lost = true;
-                    endReached = true;
                 }
 
                 try {
-                    updateGame(round);
+                    updateGame(round++);
                 } catch (GameOverException e) {
                     endReached = true;
                 }
             }
 
-            if (players[0].getScore() > players[1].getScore()) {
+            if (getScore(0) > getScore(1)) {
                 out.println("###End 0 1");
-            } else if (players[0].getScore() < players[1].getScore()) {
+            } else if (getScore(1) < getScore(0)) {
                 out.println("###End 1 0");
             } else {
                 out.println("###End 01");
